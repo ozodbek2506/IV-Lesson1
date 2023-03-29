@@ -4,12 +4,14 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AnimationUtils
 import android.widget.ArrayAdapter
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import java.util.*
 
-class ItemAdapter(context:Context, var items:MutableList<ItemData>):RecyclerView.Adapter<ItemAdapter.MyViewHolder>(){
+class ItemAdapter(val context:Context, var items:MutableList<ItemData>):RecyclerView.Adapter<ItemAdapter.MyViewHolder>(), ItemTouchAdapter {
 
     class MyViewHolder(itemView: View) :RecyclerView.ViewHolder(itemView){
         val item_background: ImageView=itemView.findViewById(R.id.background_img)
@@ -31,6 +33,30 @@ return items.size
         holder.item_background.setImageResource(currentItem.background_img)
         holder.item_name.text=currentItem.name
         holder.item_recepies.text=currentItem.recepies
+
+        val anim = AnimationUtils.loadAnimation(context, R.anim.item_animation)
+        holder.itemView.startAnimation(anim)
     }
+
+    override fun onItemMove(fromPosition: Int, toPosition: Int) {
+        if(fromPosition<toPosition){
+            for (i in fromPosition until toPosition){
+                Collections.swap(items,i , i+1)
+            }
+        }else{
+            for (i in fromPosition downTo  toPosition+1){
+                Collections.swap(items,i , i-1)
+            }
+        }
+        notifyItemMoved(fromPosition, toPosition)
+    }
+
+    override fun onItemDismiss(position: Int) {
+        items.removeAt(position)
+        notifyItemRemoved(position)
+    }
+
+
+
 
 }
